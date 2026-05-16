@@ -1,0 +1,71 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: #0A0808;
+  --color-foreground: #E8DDC0;
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: ui-monospace, monospace;
+  --font-heading: "MedievalSharp", ui-serif, Georgia, serif;
+  --color-sidebar-ring: #C9A961;
+  --color-sidebar-border: #3A2E20;
+  --color-sidebar-accent-foreground: #E8DDC0;
+  --color-sidebar-accent: #1A1410;
+  --color-sidebar-primary-foreground: #E8DDC0;
+  --color-sidebar-primary: #C9A961;
+  --color-sidebar-foreground: #E8DDC0;
+  --color-sidebar: #0A0808;
+  --color-chart-5: #8B1A1A;
+  --color-chart-4: #3F6E3F;
+  --color-chart-3: #C9A961;
+  --color-chart-2: #5B4A32;
+  --color-chart-1: #E8DDC0;
+  --color-ring: #C9A961;
+  --color-input: #1A1410;
+  --color-border: #3A2E20;
+  --color-destructive: #8B1A1A;
+  --color-accent-foreground: #E8DDC0;
+  --color-accent: #1A1410;
+  --color-muted-foreground: #A09070;
+  --color-muted: #1A1410;
+  --color-secondary-foreground: #E8DDC0;
+  --color-secondary: #1A1410;
+  --color-primary-foreground: #0A0808;
+  --color-primary: #C9A961;
+  --color-popover-foreground: #E8DDC0;
+  --color-popover: #1A1410;
+  --color-card-foreground: #E8DDC0;
+  --color-card: #1A1410;
+  --radius-sm: 0.3rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    background-color: #0A0808;
+    color: #E8DDC0;
+  }
+  html {
+    @apply font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: "MedievalSharp", ui-serif, Georgia, serif;
+  }
+}
+
+@layer utilities {
+  .text-glow {
+    text-shadow: 0 0 10px rgba(201, 169, 97, 0.3), 0 0 20px rgba(201, 169, 97, 0.15);
+  }
+  .paper-texture {
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  }
+}

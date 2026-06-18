@@ -9,7 +9,7 @@ export const CONTRACT_ADDRESS = (
     "0x0000000000000000000000000000000000000000" // fallback if env not set
 ) as `0x${string}`;
 
-const ENDPOINT = process.env.NEXT_PUBLIC_RPC_URL || "https://studio.genlayer.com/rpc";
+const ENDPOINT = process.env.NEXT_PUBLIC_RPC_URL || "https://studio.genlayer.com/api";
 
 /**
  * Get the current connected account from MetaMask (async, fresh check).

@@ -20,7 +20,7 @@ import {
   GameState,
   ADVENTURES,
 } from "@/lib/game-types";
-import { writeContract, readContract, account } from "@/lib/genlayer";
+import { writeContract, readContract, getAccount } from "@/lib/genlayer";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Swords, Home, Backpack, Heart, FileText } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -39,11 +39,10 @@ export default function AdventurePage() {
   const [lastMonsterDamage, setLastMonsterDamage] = useState(0);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const addr = account();
-
   const loadGame = useCallback(async () => {
     if (!gameId) return;
     try {
+      const addr = await getAccount();
       const g = (await readContract("get_game", [gameId])) as Game;
       const c = addr ? ((await readContract("get_character", [addr])) as Character) : null;
       const logRaw = (await readContract("get_event_log", [gameId])) as string;
@@ -64,7 +63,7 @@ export default function AdventurePage() {
       // silent
     }
     setLoading(false);
-  }, [gameId, addr]);
+  }, [gameId]);
 
   useEffect(() => {
     loadGame();

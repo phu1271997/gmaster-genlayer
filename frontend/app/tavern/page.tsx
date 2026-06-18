@@ -10,7 +10,7 @@ import CharacterCreator from "@/components/CharacterCreator";
 import CharacterSheet from "@/components/CharacterSheet";
 import AdventureSelector from "@/components/AdventureSelector";
 import { Character } from "@/lib/game-types";
-import { writeContract, readContract, account } from "@/lib/genlayer";
+import { writeContract, readContract, getAccount } from "@/lib/genlayer";
 import { Swords, Scroll } from "lucide-react";
 
 export default function TavernPage() {
@@ -22,7 +22,7 @@ export default function TavernPage() {
   const [showDead, setShowDead] = useState(false);
 
   const loadCharacter = useCallback(async () => {
-    const addr = account();
+    const addr = await getAccount();
     if (!addr) {
       setLoading(false);
       return;
@@ -50,15 +50,45 @@ export default function TavernPage() {
   const handleCreate = async (name: string, charClass: string) => {
     setCreating(true);
     try {
+      const addr = await getAccount();
+      if (!addr) {
+        toast.error("Please connect your wallet first");
+        return;
+      }
       await writeContract("create_character", [name, charClass]);
       toast.success("Hero forged in the fires of creation!");
       await loadCharacter();
     } catch (e: any) {
-      toast.error(e?.message || "The forge refused your request.");
+      const msg = parseContractError(e);
+      toast.error(msg);
     } finally {
       setCreating(false);
     }
   };
+
+  function parseContractError(err: any): string {
+    const raw = err?.message || String(err);
+    if (raw.includes("No account set")) {
+      return "Please connect your wallet first";
+    }
+    if (raw.includes("MetaMask not detected")) {
+      return "Please install MetaMask";
+    }
+    if (raw.includes("UserError:")) {
+      const match = raw.match(/UserError:\s*([^"\\\\]+)/);
+      return match ? match[1].trim() : raw;
+    }
+    if (raw.includes("already have a living character")) {
+      return "You already have an active hero. Use the existing one!";
+    }
+    if (raw.includes("Name must be 1-32 characters")) {
+      return "Hero name must be 1-32 characters";
+    }
+    if (raw.includes("Invalid class")) {
+      return "Please select a valid class";
+    }
+    return `The forge refused: ${raw.slice(0, 200)}`;
+  }
 
   const handleStartAdventure = async (adventureId: string) => {
     setStartingAdventure(adventureId);

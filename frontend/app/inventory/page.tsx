@@ -7,7 +7,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import CharacterSheet from "@/components/CharacterSheet";
 import InventoryGrid from "@/components/InventoryGrid";
 import { Character, Item } from "@/lib/game-types";
-import { readContract, account } from "@/lib/genlayer";
+import { readContract, getAccount } from "@/lib/genlayer";
 import { Backpack, ArrowLeft } from "lucide-react";
 
 export default function InventoryPage() {
@@ -17,7 +17,7 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const addr = account();
+    const addr = await getAccount();
     if (!addr) {
       setLoading(false);
       return;

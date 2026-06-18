@@ -1,8 +1,18 @@
 # GMaster — Decentralized AI Dungeon Master on GenLayer
 
+[![Deployed Contract](https://img.shields.io/badge/GenLayer_Contract-0x4EF21aBF...4cb40-blueviolet?style=for-the-badge&logo=ethereum)](https://studio.genlayer.com/explorer/address/0x4EF21aBF27b914Cbab5300DC51490A3a51E4cb40)
+[![Live App on Vercel](https://img.shields.io/badge/Vercel_App-Live_Demo-success?style=for-the-badge&logo=vercel)](https://gmaster-genlayer.vercel.app/)
+
 > *"In a realm where dice are cast by consensus and stories are sealed in stone, only the brave dare roll."*
 
 **GMaster** is a full-stack Web3 dApp that brings D&D-style text adventures on-chain. Every action you take is narrated by an AI Dungeon Master, every dice roll is verified by validator consensus, and every triumph or tragedy is permanently recorded — impossible to cheat, impossible to save-scum.
+
+---
+
+### Deployed Addresses & Studio Explorer
+- **Intelligent Contract Address:** [`0x4EF21aBF27b914Cbab5300DC51490A3a51E4cb40`](https://studio.genlayer.com/explorer/address/0x4EF21aBF27b914Cbab5300DC51490A3a51E4cb40)
+- **Live Vercel Application:** [https://gmaster-genlayer.vercel.app/](https://gmaster-genlayer.vercel.app/)
+- **GenLayer Studio Network (studionet) Explorer:** [GenLayer Studio Explorer](https://studio.genlayer.com/explorer)
 
 ---
 
@@ -20,19 +30,41 @@
 
 ## Architecture
 
-```
-Frontend (Next.js 14 + Tailwind + shadcn/ui)
-        │
-        ▼ JSON-RPC
-GenLayer Studio (studionet)
-        │
-        ▼ Intelligent Contract (Python)
-   ┌────────────┐  ┌─────────┐  ┌──────┐
-   │ Characters │  │  Games  │  │Items │
-   └────────────┘  └─────────┘  └──────┘
-        │
-   Non-deterministic DM (run_nondet_unsafe)
-   Leader LLM → Validator consensus → Apply state
+```mermaid
+sequenceDiagram
+    autonumber
+    actor Player as MetaMask / Player
+    participant FE as Frontend (Next.js)
+    participant VM as GenVM (studionet)
+    participant DM as Leader LLM (Dungeon Master)
+    participant VC as Validator Consensus (LLM check)
+
+    Player->>FE: Connect Wallet & Click 'Forge Your Hero'
+    FE->>VM: writeContract("create_character", [name, class])
+    VM-->>FE: Character created on-chain (stats, HP, status)
+
+    Player->>FE: Choose adventure & Start
+    FE->>VM: writeContract("start_adventure", [adventure_id])
+    VM-->>FE: Game state initialized (room 1, seed, AC, HP)
+
+    loop Every Action in Adventure
+        Player->>FE: Input free-text action (e.g. "I search the walls for traps")
+        FE->>VM: writeContract("take_action", [action])
+        activate VM
+        Note over VM: Leader starts non-deterministic step
+        VM->>DM: Prompt with game state, rules, and user action
+        DM-->>VM: Return DM narration, HP changes, item drops, state update
+        VM->>VC: gl.eq_principle.prompt_comparative (Validator check)
+        Note over VC: Validators compare Leader output against rules & verify consensus
+        VC-->>VM: Consensus reached (equality principle)
+        deactivate VM
+        VM-->>FE: Update game log, narration, inventory, and health
+        alt HP is 0
+            Note over FE: Permanent death! Character archived.
+        else Reached final boss & Defeated
+            Note over FE: Victory! Mint Victory Token & 100 EXP.
+        end
+    end
 ```
 
 ---

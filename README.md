@@ -128,7 +128,7 @@ Open **http://localhost:3000**
 1. Open MetaMask
 2. Add **GenLayer Studio** network:
    - Network Name: `GenLayer Studio`
-   - RPC URL: `https://studio.genlayer.com/rpc`
+   - RPC URL: `https://studio.genlayer.com/api`
    - Chain ID: `1234`
    - Currency Symbol: `GEN`
 3. Connect your wallet on the site

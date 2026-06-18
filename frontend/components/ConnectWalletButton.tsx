@@ -1,59 +1,48 @@
-"use client";
+"use client"
 
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Shield, CheckCircle } from "lucide-react";
-import { formatAddress } from "@/lib/utils";
-import { connectWallet } from "@/lib/genlayer";
+import { useState, useEffect } from "react"
+import { Button } from "@/components/ui/button"
+import { Wallet } from "lucide-react"
+import { connectWallet, getAccount } from "@/lib/genlayer"
 
 export default function ConnectWalletButton() {
-  const [address, setAddress] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
-
+  const [address, setAddress] = useState<string | null>(null)
+  
   useEffect(() => {
-    if (typeof window === "undefined") return;
+    const checkConnection = async () => {
+      const acc = await getAccount();
+      setAddress(acc);
+    };
+    checkConnection();
+
     const w = window as any;
-    if (w.ethereum?.selectedAddress) {
-      setAddress(w.ethereum.selectedAddress);
+    if (w && w.ethereum && w.ethereum.on) {
+      const handler = (accounts: string[]) => {
+        setAddress(accounts[0] ?? null);
+      };
+      w.ethereum.on("accountsChanged", handler);
+      return () => {
+        if (w.ethereum.removeListener) {
+          w.ethereum.removeListener("accountsChanged", handler);
+        }
+      };
     }
-    const handler = (accounts: string[]) => {
-      setAddress(accounts[0] ?? null);
-    };
-    w.ethereum?.on?.("accountsChanged", handler);
-    return () => {
-      w.ethereum?.removeListener?.("accountsChanged", handler);
-    };
-  }, []);
+  }, [])
 
-  const handleConnect = async () => {
-    setLoading(true);
+  const connect = async () => {
     try {
-      const addr = await connectWallet();
-      setAddress(addr);
-    } catch (e) {
-      console.error(e);
-    } finally {
-      setLoading(false);
+      const acc = await connectWallet();
+      setAddress(acc);
+    } catch (err: any) {
+      console.error(err);
+      alert(err.message || "Failed to connect wallet.");
     }
-  };
-
-  if (address) {
-    return (
-      <div className="flex items-center gap-2 text-sm text-amber-400/90">
-        <CheckCircle className="w-4 h-4" />
-        <span className="font-mono">{formatAddress(address)}</span>
-      </div>
-    );
   }
 
   return (
-    <Button
-      onClick={handleConnect}
-      disabled={loading}
-      className="bg-amber-700 hover:bg-amber-600 text-amber-50 border border-amber-500/30 shadow-lg shadow-amber-900/20"
-    >
-      <Shield className="w-4 h-4 mr-2" />
-      {loading ? "Summoning..." : "Connect Wallet"}
+    <Button onClick={connect} variant={address ? "outline" : "default"} className="font-mono">
+      <Wallet className="mr-2 h-4 w-4" />
+      {address ? `${address.substring(0, 6)}...${address.substring(38)}` : "Connect Wallet"}
     </Button>
-  );
+  )
 }

@@ -1,9 +1,9 @@
 import pytest
-from gltest import deploy_contract
+import json
 
 @pytest.fixture
-def contract():
-    return deploy_contract("contracts/gmaster.py")
+def contract(direct_deploy):
+    return direct_deploy("contracts/gmaster.py")
 
 # ═════════════════════
 # Character Tests
@@ -74,7 +74,11 @@ def test_get_active_game_for_player(contract):
 # ═════════════════════
 # Action Tests
 # ═════════════════════
-def test_take_action_updates_state(contract):
+def test_take_action_updates_state(direct_vm, contract):
+    direct_vm.mock_llm(
+        ".*",
+        '{"dice_rolls": [], "outcome": "success", "hp_change": 0, "monster_hp_change": 0, "loot_dropped": [], "room_advances": false, "combat_ends": false, "game_ends": false, "victory": false, "death": false, "narrative": "You cast a spell."}'
+    )
     contract.create_character(name="Gandalf", char_class="mage")
     game_id = contract.start_adventure("goblin_cave")
     game_before = contract.get_game(game_id)
@@ -88,7 +92,11 @@ def test_take_action_invalid_game(contract):
     with pytest.raises(Exception):
         contract.take_action(u256(999), "I attack!")
 
-def test_event_log_populated(contract):
+def test_event_log_populated(direct_vm, contract):
+    direct_vm.mock_llm(
+        ".*",
+        '{"dice_rolls": [], "outcome": "success", "hp_change": 0, "monster_hp_change": 0, "loot_dropped": [], "room_advances": false, "combat_ends": false, "game_ends": false, "victory": false, "death": false, "narrative": "You heal them."}'
+    )
     contract.create_character(name="Arwen", char_class="cleric")
     game_id = contract.start_adventure("goblin_cave")
     contract.take_action(game_id, "I heal the wounded villager")

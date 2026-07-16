@@ -22,11 +22,7 @@ export default function TavernPage() {
   const [showDead, setShowDead] = useState(false);
 
   const loadCharacter = useCallback(async () => {
-    const addr = await getAccount();
-    if (!addr) {
-      setLoading(false);
-      return;
-    }
+    const addr = getAccount();
     try {
       const char = (await readContract("get_character", [addr])) as Character;
       setCharacter(char);
@@ -50,15 +46,10 @@ export default function TavernPage() {
   const handleCreate = async (name: string, charClass: string) => {
     setCreating(true);
     try {
-      const addr = await getAccount();
-      if (!addr) {
-        toast.error("Please connect your wallet first");
-        return;
-      }
       await writeContract("create_character", [name, charClass]);
       toast.success("Hero forged in the fires of creation!");
       await loadCharacter();
-    } catch (e: any) {
+    } catch (e: unknown) {
       const msg = parseContractError(e);
       toast.error(msg);
     } finally {
@@ -66,17 +57,11 @@ export default function TavernPage() {
     }
   };
 
-  function parseContractError(err: any): string {
-    const raw = err?.message || String(err);
-    if (raw.includes("No account set")) {
-      return "Please connect your wallet first";
-    }
-    if (raw.includes("MetaMask not detected")) {
-      return "Please install MetaMask";
-    }
+  function parseContractError(err: unknown): string {
+    const raw = err instanceof Error ? err.message : String(err);
     if (raw.includes("UserError:")) {
-      const match = raw.match(/UserError:\s*([^"\\\\]+)/);
-      return match ? match[1].trim() : raw;
+      const match = raw.match(/UserError:\s*([^"\\]+)/);
+      if (match) return match[1].trim();
     }
     if (raw.includes("already have a living character")) {
       return "You already have an active hero. Use the existing one!";
@@ -87,18 +72,30 @@ export default function TavernPage() {
     if (raw.includes("Invalid class")) {
       return "Please select a valid class";
     }
+    if (raw.includes("Contract address not configured")) {
+      return "App misconfigured — no contract address set.";
+    }
+    if (raw.includes("insufficient funds") || raw.includes("insufficient balance")) {
+      return "Your local hero account has no GEN. Fund it from the studionet faucet.";
+    }
+    if (raw.includes("Network") || raw.includes("fetch")) {
+      return "Cannot reach GenLayer studionet RPC. Check your connection and retry.";
+    }
     return `The forge refused: ${raw.slice(0, 200)}`;
   }
 
   const handleStartAdventure = async (adventureId: string) => {
     setStartingAdventure(adventureId);
     try {
-      const gameId = await writeContract("start_adventure", [adventureId]);
+      await writeContract("start_adventure", [adventureId]);
       toast.success("Adventure begun! Step carefully...");
-      const idVal = String(gameId ?? "0");
-      router.push(`/adventure/${idVal}`);
-    } catch (e: any) {
-      toast.error(e?.message || "The dungeon gates remain sealed.");
+      // start_adventure return value not exposed via receipt; look up newest active game
+      const addr = getAccount();
+      const activeGameId = (await readContract("get_active_game_for_player", [addr])) as string | number | bigint;
+      router.push(`/adventure/${String(activeGameId ?? "0")}`);
+    } catch (e: unknown) {
+      const msg = parseContractError(e);
+      toast.error(msg);
       setStartingAdventure(null);
     }
   };

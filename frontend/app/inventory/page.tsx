@@ -17,11 +17,7 @@ export default function InventoryPage() {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    const addr = await getAccount();
-    if (!addr) {
-      setLoading(false);
-      return;
-    }
+    const addr = getAccount();
     try {
       const [char, inv] = await Promise.all([
         readContract("get_character", [addr]) as Promise<Character>,

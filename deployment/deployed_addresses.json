@@ -1,0 +1,17 @@
+{
+  "studionet": {
+    "GMaster": "0xB82cAd160096d30d3C78D8f6f6d483c818610826",
+    "deployed_at": "2026-07-16",
+    "deploy_tx_hash": "0xd03ebd3a51c38360f59cf94973496f109d4eb8f33edd76f69e94a5fdb7128320",
+    "source": "contracts/gmaster.py",
+    "class": "GMaster",
+    "rpc": "https://studio.genlayer.com/api",
+    "smoke_test_create_character_tx": "0xf37e14ca25eaf46d00183738fa3e34e00a3b6b3ca6627aa88dbeb98acfa7982f",
+    "notes": "2026-07-16 resubmission. Fixes: (a) contract _now() no longer references non-existent gl.block.timestamp (old deploy crashed with AttributeError inside create_character); (b) frontend uses createAccount(privateKey) persisted in localStorage instead of window.ethereum, eliminating 'No account set' error; (c) global error boundary in app/error.tsx; (d) friendlier per-toast error mapping."
+  },
+  "studionet_previous": {
+    "GMaster": "0x4EF21aBF27b914Cbab5300DC51490A3a51E4cb40",
+    "deployed_at": "2026-06-10 (approx)",
+    "notes": "Broken: contract _now() referenced gl.block.timestamp which no longer exists on studionet genvm. create_character reverted with AttributeError. Kept for reference only — do not point live app at this address."
+  }
+}

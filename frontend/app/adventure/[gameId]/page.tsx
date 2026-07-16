@@ -42,11 +42,11 @@ export default function AdventurePage() {
   const loadGame = useCallback(async () => {
     if (!gameId) return;
     try {
-      const addr = await getAccount();
+      const addr = getAccount();
       const g = (await readContract("get_game", [gameId])) as Game;
-      const c = addr ? ((await readContract("get_character", [addr])) as Character) : null;
+      const c = ((await readContract("get_character", [addr])) as Character | null);
       const logRaw = (await readContract("get_event_log", [gameId])) as string;
-      const inv = addr ? ((await readContract("get_player_items", [addr])) as Item[]) : [];
+      const inv = ((await readContract("get_player_items", [addr])) as Item[]);
 
       const parsedLog: LogEntry[] = JSON.parse(logRaw || "[]");
       setGame(g);
@@ -79,8 +79,8 @@ export default function AdventurePage() {
       await writeContract("take_action", [gameId, action]);
       toast.success("The DM has spoken. The chain seals your fate...");
       await loadGame();
-    } catch (e: any) {
-      toast.error(e?.message || "The DM is displeased. Try again.");
+    } catch (e: unknown) {
+      toast.error(friendlyContractError(e, "The DM is displeased. Try again."));
     } finally {
       setActionLoading(false);
     }
@@ -92,10 +92,25 @@ export default function AdventurePage() {
       await writeContract("use_item", [item.id, gameId]);
       toast.success(`You used ${item.name}.`);
       await loadGame();
-    } catch (e: any) {
-      toast.error(e?.message || "Could not use item.");
+    } catch (e: unknown) {
+      toast.error(friendlyContractError(e, "Could not use item."));
     }
   };
+
+  function friendlyContractError(err: unknown, fallback: string): string {
+    const raw = err instanceof Error ? err.message : String(err);
+    if (raw.includes("UserError:")) {
+      const m = raw.match(/UserError:\s*([^"\\]+)/);
+      if (m) return m[1].trim();
+    }
+    if (raw.includes("insufficient funds") || raw.includes("insufficient balance")) {
+      return "Your hero account has no GEN. Fund it from the studionet faucet.";
+    }
+    if (raw.includes("Contract address not configured")) {
+      return "App misconfigured — no contract address set.";
+    }
+    return fallback;
+  }
 
   const handleRevive = () => router.push("/tavern");
 

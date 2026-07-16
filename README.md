@@ -1,6 +1,6 @@
 # GMaster — Decentralized AI Dungeon Master on GenLayer
 
-[![Deployed Contract](https://img.shields.io/badge/GenLayer_Contract-0x4EF21aBF...4cb40-blueviolet?style=for-the-badge&logo=ethereum)](https://studio.genlayer.com/explorer/address/0x4EF21aBF27b914Cbab5300DC51490A3a51E4cb40)
+[![Deployed Contract](https://img.shields.io/badge/GenLayer_Contract-0xB82cAd16...0826-blueviolet?style=for-the-badge&logo=ethereum)](https://studio.genlayer.com/explorer/address/0xB82cAd160096d30d3C78D8f6f6d483c818610826)
 [![Live App on Vercel](https://img.shields.io/badge/Vercel_App-Live_Demo-success?style=for-the-badge&logo=vercel)](https://gmaster-genlayer.vercel.app/)
 
 > *"In a realm where dice are cast by consensus and stories are sealed in stone, only the brave dare roll."*
@@ -10,7 +10,7 @@
 ---
 
 ### Deployed Addresses & Studio Explorer
-- **Intelligent Contract Address:** [`0x4EF21aBF27b914Cbab5300DC51490A3a51E4cb40`](https://studio.genlayer.com/explorer/address/0x4EF21aBF27b914Cbab5300DC51490A3a51E4cb40)
+- **Intelligent Contract Address:** [`0xB82cAd160096d30d3C78D8f6f6d483c818610826`](https://studio.genlayer.com/explorer/address/0xB82cAd160096d30d3C78D8f6f6d483c818610826)
 - **Live Vercel Application:** [https://gmaster-genlayer.vercel.app/](https://gmaster-genlayer.vercel.app/)
 - **GenLayer Studio Network (studionet) Explorer:** [GenLayer Studio Explorer](https://studio.genlayer.com/explorer)
 
